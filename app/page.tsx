@@ -10,6 +10,23 @@ const MAX_LENGTH = 200;
 const FALLBACK_RESULTS = ["生成失败，请重试", "生成失败，请重试", "生成失败，请重试"];
 const RESULT_LABELS = ["委婉", "直接", "高情商"] as const;
 
+function fallbackCopyText(value: string): boolean {
+  try {
+    const textarea = document.createElement("textarea");
+    textarea.value = value;
+    textarea.setAttribute("readonly", "");
+    textarea.style.position = "fixed";
+    textarea.style.top = "-9999px";
+    document.body.appendChild(textarea);
+    textarea.select();
+    const copied = document.execCommand("copy");
+    document.body.removeChild(textarea);
+    return copied;
+  } catch {
+    return false;
+  }
+}
+
 export default function Home() {
   const [text, setText] = useState("");
   const [scene, setScene] = useState<Scene>("通用");
@@ -63,10 +80,16 @@ export default function Home() {
 
   const handleCopy = async (value: string) => {
     try {
-      await navigator.clipboard.writeText(value);
-      setCopyHint("已复制");
+      if (navigator.clipboard && window.isSecureContext) {
+        await navigator.clipboard.writeText(value);
+        setCopyHint("已复制");
+      } else {
+        const copied = fallbackCopyText(value);
+        setCopyHint(copied ? "已复制" : "复制失败，请手动复制");
+      }
     } catch {
-      setCopyHint("复制失败，请手动复制");
+      const copied = fallbackCopyText(value);
+      setCopyHint(copied ? "已复制" : "复制失败，请手动复制");
     }
 
     setTimeout(() => setCopyHint(""), 1500);
