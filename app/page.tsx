@@ -8,6 +8,7 @@ import SceneSelect, { type Scene } from "@/components/SceneSelect";
 
 const MAX_LENGTH = 200;
 const FALLBACK_RESULTS = ["生成失败，请重试", "生成失败，请重试", "生成失败，请重试"];
+const RESULT_LABELS = ["委婉", "直接", "高情商"] as const;
 
 export default function Home() {
   const [text, setText] = useState("");
@@ -98,7 +99,12 @@ export default function Home() {
       {results.length > 0 && (
         <section className="mt-6 space-y-4">
           {results.map((result, index) => (
-            <ResultCard key={`${result}-${index}`} text={result} onCopy={handleCopy} />
+            <ResultCard
+              key={`${result}-${index}`}
+              label={RESULT_LABELS[index] ?? "表达"}
+              text={result}
+              onCopy={handleCopy}
+            />
           ))}
         </section>
       )}
